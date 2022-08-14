@@ -1,0 +1,160 @@
+<!Doctype html>
+<html>
+
+<head>
+    <title>Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link href="/dist/output.css" rel="stylesheet"> -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+</head>
+
+<style>
+    .hide {
+        display: none;
+    }
+</style>
+
+<body>
+    <nav class="py-3 bg-[#22bad5] flex justify-end px-20">
+        <button
+            class="bg-white bg-opacity-25 py-2 px-4 rounded-full hover:bg-opacity-100 hover:text-gray-800 font-semibold transition duration-75 delay-75 ease-linear hover:shadow-sm text-white text-sm">
+            <a href="/list">View List</a>
+        </button>
+    </nav>
+
+    <form class="shadow-md py-20 border rounded-md mx-20 mt-10" method="post" action="{{ url_for('admin.index') }}">
+        <div class="flex justify-center w-full">
+            <input name="subject"
+                class="text-gray-base w-2/3 py-5 px-4 h-20 outline-[#22bad5]  border text-gray-600 font-bold text-3xl border-gray-600 rounded mb-2 placeholder:text-left"
+                placeholder="Subject" />
+        </div>
+
+        <div class="mt-5 flex justify-center w-full">
+            <textarea oninput="auto_grow(this)" name="textContent"
+                class="text-gray-base w-2/3 resize-none py-10 px-4 h-auto outline-[#22bad5] border text-gray-600 text-2xl border-gray-600 rounded mb-2 placeholder:text-left"
+                placeholder="Text Content" id="textContentInput"></textarea>
+        </div>
+        <div class="mt-5 flex justify-center w-full">
+            <textarea oninput="auto_grow(this)" name="htmlContent"
+                class="text-gray-base w-2/3 resize-none py-10 px-4 h-auto outline-[#22bad5] border text-gray-600 text-2xl border-gray-600 rounded mb-2 placeholder:text-left hide"
+                placeholder="Html Content" id="htmlContentInput"></textarea>
+        </div>
+        <div class="flex justify-center space-x-6 mt-8">
+            <button type="button" onclick="toggle_textarea()" id="textarea_toggler"
+                class="bg-[#22bad5] py-3 px-5 min-w-[10rem] text-white rounded-sm hover:bg-[#1d9db4] hover:shadow-md">
+                Html Content
+            </button>
+
+            <button onclick="modalHandler(true)" type="button"
+                class="bg-[#22bad5] py-3 px-5 font-semibold text-white rounded-sm hover:bg-[#1d9db4] hover:shadow-md">
+                Preview HTML
+            </button>
+        </div>
+
+        <div class="flex justify-center mt-7">
+            <button
+                class="bg-green-500 py-3 px-5 w-40 font-semibold text-white rounded-lg hover:bg-green-600 hover:shadow-sm">
+                SEND
+            </button>
+        </div>
+    </form>
+
+    <!-- modal section start-->
+    <div class="pt-12 hidden pb-10 backdrop-blur-xs backdrop-brightness-50 h-screen w-full fixed top-0 right-0 bottom-0 left-0 overflow-y-auto"
+        id="modal">
+        <div role="alert" class="container mx-auto sm:max-w-[70%]">
+            <div class="flex justify-end mx-6 md:mx-14">
+                <button onclick="fadeOut(modal)">
+                    <img class="w-7 h-7" src="./amico.png" alt="" />
+                </button>
+            </div>
+
+            <div id="modal_preview"
+                class="pt-3 mt-4 pb-16 mb-14 bg-white shadow-md mx-6 md:mx-14 rounded-2xl border border-gray-400">
+                <!-- Preview HTML code goes here -->
+            </div>
+        </div>
+    </div>
+    <!-- modal section end -->
+
+    <script>
+
+        let htmlContentDisplayed = false;
+
+        function auto_grow(element) {
+            element.style.height = "5px";
+            element.style.height = (element.scrollHeight) + "px";
+        }
+
+        let modal = document.getElementById("modal")
+
+
+        function htmlToElement(html) {
+            var template = document.createElement('template');
+            html = html.trim(); // Never return a text node of whitespace as the result
+            template.innerHTML = html;
+            return template.content.firstChild;
+        }
+
+        function modalHandler(val) {
+            if (val) {
+                fadeIn(modal);
+            } else {
+                fadeOut(modal);
+            }
+
+            modal_preview = document.getElementById("modal_preview")
+            htmlContentInput = document.getElementById("htmlContentInput")
+            modal_preview.innerHTML = ""
+            modal_preview.appendChild(htmlToElement(htmlContentInput.value));
+
+        }
+        function fadeOut(el) {
+            el.style.opacity = 1;
+            (function fade() {
+                if ((el.style.opacity -= 0.1) < 0) {
+                    el.style.display = "none";
+                } else {
+                    requestAnimationFrame(fade);
+                }
+            })();
+        }
+
+        function fadeIn(el, display) {
+            el.style.opacity = 0;
+            el.style.display = display || "flex";
+            (function fade() {
+                let val = parseFloat(el.style.opacity);
+                if (!((val += 0.2) > 1)) {
+                    el.style.opacity = val;
+                    requestAnimationFrame(fade);
+                }
+            })();
+        }
+
+        function toggle_textarea() {
+            htmlContentDisplayed = !htmlContentDisplayed
+            htmlContentInput = document.getElementById("htmlContentInput")
+            textContentInput = document.getElementById("textContentInput")
+            toggleBtn = document.getElementById("textarea_toggler")
+
+            if (htmlContentDisplayed) {
+                htmlContentInput.classList.remove("hide")
+                htmlContentInput.parentElement.classList.remove("mt-0")
+                textContentInput.classList.add("hide")
+                textContentInput.parentElement.classList.add("mt-0")
+                toggleBtn.innerText = "Plain Text"
+            } else {
+                htmlContentInput.classList.add("hide")
+                htmlContentInput.parentElement.classList.add("mt-0")
+                textContentInput.classList.remove("hide")
+                textContentInput.parentElement.classList.remove("mt-0")
+                toggleBtn.innerText = "HTML content"
+
+            }
+        }
+    </script>
+</body>
+
+</html>
